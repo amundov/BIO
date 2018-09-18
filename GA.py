@@ -54,11 +54,39 @@ def calcFitness(pop):
         total+=rel[i]
     for i in range(0,len(rel)):
         p.append(rel[i]/total)
+    return dist, p
+
+def newRel(subpop):
+    p = []
+    total = 0
+    for i in range(0,len(subpop)):
+        total+=subpop[i]
+    for i in range(0,len(subpop)):
+        p.append(subpop[i]/total)
+    return p
         
 
-        #print(dist)
-    return dist ,rel,p
-
+def matingGround(pop,percent):
+    div = 100/percent
+    reproduction_size = int((len(pop))/div)
+    if reproduction_size%2 == 1:
+        reproduction_size+=1
+    rand = []    
+    for i in range(0,reproduction_size):
+        rand.append(random.random())
+    
+    
+    dist,p = calcFitness(pop)    
+    lucky_ones = []
+    
+    for num in rand:
+        dummy = 0
+        for i in range(0,len(p)):
+            dummy+=p[i]
+        
+    
+    
+    return(rand,p)
 
 
 
