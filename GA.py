@@ -75,7 +75,6 @@ def matingGround(pop,percent):
     for i in range(0,reproduction_size):
         rand.append(random.random())
     
-    
     dist,p = calcFitness(pop)    
     lucky_ones = []
     
@@ -83,10 +82,12 @@ def matingGround(pop,percent):
         dummy = 0
         for i in range(0,len(p)):
             dummy+=p[i]
-        
-    
-    
-    return(rand,p)
+            if dummy>num:
+                lucky_ones.append(i)
+                del(p[i])
+                p = newRel(p)
+                break   
+    return lucky_ones
 
 
 
