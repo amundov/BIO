@@ -6,7 +6,7 @@ Created on Tue Sep 18 08:55:49 2018
 """
 
 import csv
-from itertools import permutations
+import time
 from random import shuffle,randint
 
 with open("european_cities.csv","r") as file:
@@ -46,7 +46,7 @@ def calcFitness(pop):
     for i in range(0,len(dist)):
         fit = dist[i]/total
         rel.append(fit)
-    rel.sort()
+    
     total=0
     p=[]
     for i in range(0,len(rel)):
@@ -54,7 +54,37 @@ def calcFitness(pop):
         total+=rel[i]
     for i in range(0,len(rel)):
         p.append(rel[i]/total)
-    return dist, p
+    return p
+
+def calcFitnessScaling(pop):
+    dist=[]
+    total=0
+    rel=[]
+    for tour in pop:
+        dist.append(calcDist(tour))
+        total+=calcDist(tour)
+    for i in range(0,len(dist)):
+        fit = dist[i]/total
+        rel.append(fit)
+    
+    total=0
+    p=[]
+    for i in range(0,len(rel)):
+        rel[i]=(1/rel[i])
+        total+=rel[i]
+    for i in range(0,len(rel)):
+        p.append(rel[i]/total)
+    #Scaling
+    total = 0
+    print(p)
+    minpos = p.index(min(p))
+    for i in range(0,len(p)):
+        p[i]=p[i]-p[minpos]
+        total+=p[i]
+    for i in range(0,len(p)):
+        p[i]=p[i]/total
+    
+    return p
 
 def newRel(subpop):
     p = []
@@ -75,7 +105,7 @@ def matingGround(pop,percent):
     for i in range(0,reproduction_size):
         rand.append(random.random())
     
-    dist,p = calcFitness(pop)    
+    p = calcFitnessScaling(pop)    
     lucky_ones = []
     
     for num in rand:
@@ -89,8 +119,50 @@ def matingGround(pop,percent):
                 break   
     return lucky_ones
 
+def makeChildren(lucky_ones,pop):
+    children = []
+    for i in range(0,len(lucky_ones),2):
+        a,b = twoPMX(pop[lucky_ones[i]],pop[lucky_ones[i+1]])
+        children.append(a)
+        children.append(b)
+        
+    return children
 
+def selection(pop,children):
+    newPop= pop+children
+    
+    rank = calcFitnessScaling(newPop)
+    
+    for i in range(0,len(children)):
+        minpos = rank.index(min(rank))
+        del(rank[minpos],newPop[minpos])
+        
+    return newPop
 
+    
+
+def main(pop_size,turnover,t):
+    
+    pop = createPopulation(pop_size)
+    time_start=time.time()
+    #while time.time()-time_start < t:
+    for i in range(0,5):
+        avg_dist = 0
+        selected = matingGround(pop,turnover)
+        children = makeChildren(selected,pop)
+        pop =selection(pop,children)
+        for tour in pop:
+            avg_dist+=calcDist(tour)
+        print(pop[0])
+    dist = []
+    for tour in pop:
+            dist.append(calcDist(tour))
+    
+    
+    return dist
+        
+    
+        
 
 
 
