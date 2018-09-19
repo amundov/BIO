@@ -12,7 +12,6 @@ from random import shuffle,randint
 with open("european_cities.csv","r") as file:
     data = list(csv.reader(file,delimiter=';'))
 
-
 cities = []
 
 for i in range(1,len(data)):
@@ -56,13 +55,14 @@ def calcFitness(pop):
         p.append(rel[i]/total)
     return p
 
-def calcFitnessScaling(pop):
+def calcFitnessScaled(pop):
     dist=[]
     total=0
     rel=[]
     for tour in pop:
         dist.append(calcDist(tour))
         total+=calcDist(tour)
+    #print(dist)
     for i in range(0,len(dist)):
         fit = dist[i]/total
         rel.append(fit)
@@ -76,7 +76,7 @@ def calcFitnessScaling(pop):
         p.append(rel[i]/total)
     #Scaling
     total = 0
-    print(p)
+    
     minpos = p.index(min(p))
     for i in range(0,len(p)):
         p[i]=p[i]-p[minpos]
@@ -96,28 +96,60 @@ def newRel(subpop):
     return p
         
 
-def matingGround(pop,percent):
-    div = 100/percent
+def matingGround(pop,percent_mating):
+    div = 100/percent_mating
     reproduction_size = int((len(pop))/div)
     if reproduction_size%2 == 1:
         reproduction_size+=1
     rand = []    
     for i in range(0,reproduction_size):
-        rand.append(random.random())
-    
-    p = calcFitnessScaling(pop)    
+        rand.append(random.random()) 
+    p = calcFitness(pop) 
+    #print(p)
     lucky_ones = []
-    
+    mutating_ones = []
+
     for num in rand:
         dummy = 0
         for i in range(0,len(p)):
             dummy+=p[i]
             if dummy>num:
                 lucky_ones.append(i)
-                del(p[i])
-                p = newRel(p)
-                break   
+                
+                break 
+    
+    #print(lucky_ones)
     return lucky_ones
+
+#40% best reproduces, rest gets mutated. hard. 
+def livetsSkole(pop,percent_mating):
+    div = 100/percent_mating
+    reproduction_size = int((len(pop))/div)
+    if reproduction_size%2 == 1:
+        reproduction_size+=1
+    rand = []    
+    for i in range(0,reproduction_size):
+        rand.append(random.random()) 
+    p = calcFitness(pop)
+    
+    master = [(i,p[i]) for i in range(len(p))]
+    
+    #print(p)
+    lucky_ones = []
+    mutating_ones = []
+
+    for num in rand:
+        dummy = 0
+        for i in range(0,len(p)):
+            dummy+=p[i]
+            if dummy>num:
+                lucky_ones.append(i)
+                
+                break 
+    
+    #print(lucky_ones)
+    return lucky_ones
+
 
 def makeChildren(lucky_ones,pop):
     children = []
@@ -131,13 +163,28 @@ def makeChildren(lucky_ones,pop):
 def selection(pop,children):
     newPop= pop+children
     
-    rank = calcFitnessScaling(newPop)
+    rank = calcFitness(newPop)
     
     for i in range(0,len(children)):
         minpos = rank.index(min(rank))
         del(rank[minpos],newPop[minpos])
         
     return newPop
+
+def mutationTiny(subpop):
+    
+    for tour in subpop:
+        a = tour.pop(random.randint(0,len(tour)-1))
+        tour.insert(random.randint(0,len(tour)-1),a)
+        print(a)
+     
+    
+    return subpop
+
+def mutationLarge(subpop):
+    for tour in subpop:
+        shuffle(tour)
+    return subpop
 
     
 
@@ -146,27 +193,35 @@ def main(pop_size,turnover,t):
     pop = createPopulation(pop_size)
     time_start=time.time()
     #while time.time()-time_start < t:
-    for i in range(0,5):
+    for i in range(0,50):
         avg_dist = 0
         selected = matingGround(pop,turnover)
         children = makeChildren(selected,pop)
         pop =selection(pop,children)
         for tour in pop:
             avg_dist+=calcDist(tour)
-        print(pop[0])
+        #print(pop[0])
     dist = []
     for tour in pop:
             dist.append(calcDist(tour))
     
     
     return dist
+
+def average(pop,num):
+    total = 0
+    
+    for i in range(0,num):
+        dist = main(pop,20,0)
+        for d in dist:
+            total+=d
+        
+    return( total/(pop*num))
+    
+        
         
     
         
-
-
-
-
 
 
 
