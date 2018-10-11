@@ -15,37 +15,19 @@ class mlp:
         self.v = (self.v-0.5)/20
         self.w = (self.w-0.5)/20
         print(self.w)
-       
-    
-    
-    """def initializeWeights(self,v,w):
-        
-        for i in range(np.shape(v)[0]):
-            for j in range(np.shape(v)[1]):
-                v[i][j] = random.uniform(-0.3,0.3)
-        
-        for i in range(np.shape(w)[0]):
-            for j in range(np.shape(w)[1]):
-                w[i][j] = random.uniform(-0.3,0.3)"""
-        
-    
-    
-    def earlystopping(self, inputs, targets, valid, validtargets):
+   
+    def earlystopping(self, inputs, targets, valid, validtargets,iterations):
         e = self.fullError(valid,validtargets)
         
         while True:
-            self.train(inputs,targets)
+            self.train(inputs,targets,iterations)
             dummy = self.fullError(valid,validtargets)
             print(dummy)
             if dummy<e:
                 e = dummy
             else: 
                 break
-        
-        
-        
-        
-        
+    
     def fullError(self,inputs,targets):
         E = 0
         for i in range(len(inputs)):
@@ -60,7 +42,7 @@ class mlp:
         return 0.5*e
 
 
-    def train(self, inputs, targets,iterations = 20):
+    def train(self, inputs, targets,iterations):
         index = list(range(len(inputs)))
         random.shuffle(index)
         k = 0
@@ -134,4 +116,13 @@ class mlp:
                 
 
     def confusion(self, inputs, targets):
-        0
+        conf = np.zeros((np.shape(self.w)[1],np.shape(self.w)[1]))
+        for i in range(len(inputs)):
+            z,y = self.forward(inputs[i])
+            target = list(targets[i])
+            
+            index = target.index(max(target))
+            prediction = y.index(max(y))
+            conf[prediction][index]+=1
+        
+        print(conf)

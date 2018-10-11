@@ -50,16 +50,20 @@ test = movements[3::4,0:40]
 test_targets = target[3::4]
 
 # Try networks with different number of hidden nodes:
-hidden = 12
+hidden = 50
 
+
+iterations = 3
 # Initialize the network:
 net = mlp.mlp(train, train_targets, hidden)
-
+print('Confusion matrix before training:')
+net.confusion(test,test_targets)
 # Run training:
-#net.earlystopping(train, train_targets, valid, valid_targets)
+net.earlystopping(train, train_targets, valid, valid_targets,iterations)
 # NOTE: You can also call train method from here,
 #       and make train use earlystopping method.
 #       This is a matter of preference.
 
 # Check how well the network performed:
-#net.confusion(test,test_targets)
+print('Confusion matrix after training')
+net.confusion(test,test_targets)
