@@ -31,9 +31,36 @@ class mlp:
     
     
     def earlystopping(self, inputs, targets, valid, validtargets):
-        print('To be implemented')
+        e = self.fullError(valid,validtargets)
+        
+        while True:
+            self.train(inputs,targets)
+            dummy = self.fullError(valid,validtargets)
+            print(dummy)
+            if dummy<e:
+                e = dummy
+            else: 
+                break
+        
+        
+        
+        
+        
+    def fullError(self,inputs,targets):
+        E = 0
+        for i in range(len(inputs)):
+            z,y = self.forward(inputs[i])
+            E += self.error(y,targets[i])
+        return E
+                              
+    def error(self,y,target):
+        e = 0
+        for i in range(len(y)):
+            e+=((y[i]-target[i])**2)
+        return 0.5*e
 
-    def train(self, inputs, targets,iterations = 100):
+
+    def train(self, inputs, targets,iterations = 20):
         index = list(range(len(inputs)))
         random.shuffle(index)
         k = 0
@@ -44,6 +71,21 @@ class mlp:
                 self.backward(y,targets[index[i]],z,inputs[index[i]])
             k+=1
         return self.w
+    
+    def evaluate(self,test, targets):
+        right = 0
+        wrong = 0
+        
+        for i in range(len(test)):
+            z,y = self.forward(test[i])
+            print(y,targets[i])
+            if y.index(max(y)) == list(targets[i]).index(max(list(targets[i]))):
+                right+=1
+            else:
+                wrong+=1
+        return right,wrong, right/(right+wrong)
+            
+
 
     def forward(self, inputs):
         #Calulation of values in hidden layer
@@ -92,4 +134,4 @@ class mlp:
                 
 
     def confusion(self, inputs, targets):
-        print('To be implemented')
+        0
