@@ -11,8 +11,10 @@ class mlp:
         self.v = np.random.random(((len(inputs[0])+1),nhidden))
         self.w = np.random.random((nhidden+1,len(targets[0])))
         
+        #making the weigths "small enough"
         self.v = (self.v-0.5)/20
         self.w = (self.w-0.5)/20
+        print(self.w)
        
     
     
@@ -31,8 +33,17 @@ class mlp:
     def earlystopping(self, inputs, targets, valid, validtargets):
         print('To be implemented')
 
-    def train(self, inputs, targets, iterations=100):
-        print('To be implemented')
+    def train(self, inputs, targets,iterations = 100):
+        index = list(range(len(inputs)))
+        random.shuffle(index)
+        k = 0
+        for i in range(iterations):
+            print(k)
+            for i in range(len(inputs)):
+                z,y = self.forward(inputs[index[i]])
+                self.backward(y,targets[index[i]],z,inputs[index[i]])
+            k+=1
+        return self.w
 
     def forward(self, inputs):
         #Calulation of values in hidden layer
@@ -50,7 +61,7 @@ class mlp:
         
         return z,y
     
-    def deltas0(self,output,target,z,inputs):
+    def backward(self,output,target,z,inputs):
         #deltas of output layer:
         d0 = []
         for i in range(0,len(output)):
@@ -59,7 +70,6 @@ class mlp:
         dh = np.zeros(np.shape(z))
         for j in range(1,np.shape(self.w)[0]):
             for i in range(np.shape(self.w)[1]):
-                print(j,i, d0[i],self.w[j][i])
                 dh[j-1] += d0[i]*self.w[j][i]
 
         #updating w
@@ -77,22 +87,9 @@ class mlp:
         for i in range(1,np.shape(self.v)[0]):
             for k in range(np.shape(self.v)[1]):
                 self.v[i][k] -= (self.eta*inputs[i-1]*dh[k])
-        return self.v
+        #no return, self.v and self.w are updated. 
+    
                 
-        
-    
-    
-    
-        
-        
-        
-        
-    
-        
-        
-        
-        
 
     def confusion(self, inputs, targets):
         print('To be implemented')
-
